@@ -1,9 +1,6 @@
 import hashlib
 import os
 import secrets
-#import glob
-#import random
-
 
 def get_list_of_files(dir_name):
 
@@ -37,7 +34,6 @@ def generate_file_verification(filepath):
 
     file_name = filepath.split("\\")[-1]
 
-    #token = random.getrandbits(256)
     n_bits = 256
     token = secrets.token_hex(int(n_bits/8))
 
@@ -60,9 +56,15 @@ def generate_all_files_verification(path_folder):
 
 
 
+def print_verification(verification):
+    print('File:', verification[0], ', hash:', verification[1], ' token:', verification[2])
+
+
+
 def print_files_verification(verifications):
     for f in verifications:
-        print('File:', f[0], ', hash:', f[1], ' token:', f[2])
+        print_verification(f)
+
 
 
 #############################################################################################################
@@ -72,14 +74,3 @@ def print_files_verification(verifications):
 path_folder = 'client/files'
 verifications = generate_all_files_verification(path_folder)
 print_files_verification(verifications)
-
-
-    
-
-
-
-
-
-
-
-
