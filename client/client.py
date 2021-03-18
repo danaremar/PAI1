@@ -19,8 +19,7 @@ class HIDSClient:
             response = s.recv(1024)
             print('Received', repr(response))
 
-    def request_all_verifications(self):
-        path_folder = 'client/files'
+    def request_all_verifications(self, path_folder):
         verifications = generate_all_files_verification(path_folder)
         for i in verifications:
             print_verification(i)
@@ -29,8 +28,8 @@ class HIDSClient:
 
 
 # EJEMPLO DE USO: Los valores para host y port son opcionales
-client = HIDSClient('127.0.0.1', 55333)
-client.request_all_verifications()
+# client = HIDSClient('127.0.0.1', 55333)
+# client.request_verification("filename","hash","token")
 
 
 

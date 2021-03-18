@@ -71,6 +71,6 @@ def print_files_verification(verifications):
 ############################################  TESTS  ########################################################
 #############################################################################################################
 
-path_folder = 'client/files'
-verifications = generate_all_files_verification(path_folder)
-print_files_verification(verifications)
+#path_folder = 'client/files'
+#verifications = generate_all_files_verification(path_folder)
+#print_files_verification(verifications)
