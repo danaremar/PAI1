@@ -86,7 +86,9 @@ def build_tree(path_folder):
     node = generate_node(info_list=info_list, parent=parent, i=0)
     return node
 
-    
+#TODO: Implementar método de búsqueda en el arbol cargado que devuelve un hash dado un nombre de fichero
+def search_value(filename):
+    return filename
 
 # TEST PART
 

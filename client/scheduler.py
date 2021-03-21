@@ -40,6 +40,7 @@ class CustomScheduler(object):
 def dummy_task(param):
     log_info(param)
 
+# Para probar el uso del script
 if __name__ == "__main__":
     log_info("Empezando tareas")
 
