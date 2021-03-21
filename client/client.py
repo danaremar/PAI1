@@ -3,11 +3,19 @@ import json
 from file_service import generate_all_files_verification, print_verification
 from hmac_generator import generate_hmac
 
+SECRET = 104723
+
 def dummy_callenge(token):
     return "challenge"
 
+def create_challenge(token):
+    t1 = int(token, 0) % SECRET*7
+    t2 = int(token, 0) % SECRET
+    challenge = t1*t2
+    return challenge
+
 def file_verification(filename, expected_hash, token, server_hmac):
-    challenge = dummy_callenge(token)
+    challenge = create_challenge(token)
     mac_file = generate_hmac(expected_hash, token, challenge)
     return mac_file == server_hmac
 
