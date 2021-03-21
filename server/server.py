@@ -6,12 +6,19 @@ from hmac_generator import generate_hmac
 HOST = '127.0.0.1'
 PORT = 55333
 ALWAYS_CORRECT = True
+SECRET = 104723
 
 def dummy_verification(filename, hash_file, token):
     return "OK"
 
 def dummy_callenge(token):
     return "challenge"
+
+def create_challenge(token):
+    t1 = int(token, 0) % SECRET*7
+    t2 = int(token, 0) % SECRET
+    challenge = t1*t2
+    return challenge
 
 #TODO: Construir correctamente el path
 def get_file_path(filename):
@@ -23,7 +30,7 @@ def file_verification(filename, hash_file, token):
     mac_file = None
     verification = "VERIFICATION_FAILED"
     if (hash_file == hash_value) or ALWAYS_CORRECT:
-        challenge = dummy_callenge(token)
+        challenge = create_challenge(token)
         mac_file = generate_hmac(hash_file, token, challenge)
         verification = "VERIFICATION_SUCCES"
     
