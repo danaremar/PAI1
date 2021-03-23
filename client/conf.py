@@ -5,7 +5,6 @@ config = configparser.SafeConfigParser()
 
 config.read("conf.cfg")
 
-print(config.sections())
 SERVER_IP = config.get('server', 'IP')
 SERVER_PORT = int(config.get('server', 'PORT'))
 ALWAYS_CORRECT = config.get('debug', 'ALWAYS_CORRECT')
