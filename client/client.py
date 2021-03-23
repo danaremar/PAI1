@@ -5,13 +5,12 @@ from hmac_generator import generate_hmac
 
 SECRET = 104723
 
-def dummy_callenge(token):
-    return "challenge"
-
 def create_challenge(token):
-    t1 = int(token, 0) % SECRET*7
-    t2 = int(token, 0) % SECRET
+    print('TOKEN', token)
+    t1 = int(token, 16) % SECRET*7
+    t2 = int(token, 16) % SECRET
     challenge = t1*t2
+    print('CHALLENGE', challenge)
     return challenge
 
 def file_verification(filename, expected_hash, token, server_hmac):
@@ -25,11 +24,11 @@ class HIDSClient:
         self.host = host
         self.port =  port
     
-    def request_verification(self, filepath, data_hash, token):
+    def request_verification(self, filepath_hash, data_hash, token):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
 
-            data = {"filepath" : filepath, "data_hash": data_hash, "token": token}
+            data = {"filepath_hash" : filepath_hash, "data_hash": data_hash, "token": token}
             dumped_data = json.dumps(data)
             
             s.sendall(bytes(dumped_data, encoding="utf-8"))
@@ -45,16 +44,13 @@ class HIDSClient:
             json_response = self.request_verification(filepath_hash, data_hash, token)
             response = json.loads(json_response.decode('utf8'))
             if response["response"]["verification"] == "VERIFICATION_SUCCES":
-                print(file_verification(filepath, data_hash, token, response["response"]["MAC"]))
+                print(file_verification(filepath_hash, data_hash, token, response["response"]["MAC"]))
             else:
                 print(response["response"]["verification"])
 
 
-# EJEMPLO DE USO: Los valores para host y port son opcionales
-if __name__ == "__main__":
-    client = HIDSClient('127.0.0.1', 55333)
-    client.request_all_verifications("client/files")
-
+client = HIDSClient('127.0.0.1', 55333)
+client.request_all_verifications("./server/files")
 
 
 

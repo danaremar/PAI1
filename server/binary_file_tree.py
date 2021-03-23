@@ -58,6 +58,7 @@ def build_tree(path_folder):
     info_list = generate_all_files_info(path_folder)
     parent = AnyNode(dict_keys=info_list[0][0], dict_values=[info_list[0][1], info_list[0][2]], parent=None)
     node = generate_node(info_list=info_list, parent=parent, i=0)
+    print('\nRepresents the tree: ', RenderTree(node).by_attr('dict_keys'))
     return node
 
 # returns an array that contains all info by filepath_hash
