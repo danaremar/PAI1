@@ -50,16 +50,17 @@ class HIDSServer:
                 s.close()
 
     def file_verification(self, filepath_hash, data_hash, token):
-    #TODO: Como se hacen búsquedas en el arbol de verdad?
-        [file_filepath_hash, filepath, file_data_hash] = search_values(self.tree, filepath_hash)
-
-        mac_file = None
         verification = "VERIFICATION_FAILED"
-        if (data_hash == file_data_hash) or ALWAYS_CORRECT:
-            challenge = create_challenge(token)
-            mac_file = generate_hmac(file_data_hash, token, challenge)
-            verification = "VERIFICATION_SUCCES"
+        mac_file = None
         
+        try:
+            [file_filepath_hash, filepath, file_data_hash] = search_values(self.tree, filepath_hash)
+            if (data_hash == file_data_hash) or ALWAYS_CORRECT:
+                challenge = create_challenge(token)
+                mac_file = generate_hmac(file_data_hash, token, challenge)
+                verification = "VERIFICATION_SUCCES"
+        except:
+            pass
         return {"verification":verification, "MAC":mac_file}
 
 if __name__ == "__main__":
