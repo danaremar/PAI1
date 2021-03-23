@@ -1,7 +1,7 @@
 import socket
 import json
-from server.binary_file_tree import search_values, build_tree
-from server.hmac_generator import generate_hmac
+from binary_file_tree import search_values, build_tree
+from hmac_generator import generate_hmac
 
 HOST = '127.0.0.1'
 PORT = 55333

@@ -25,11 +25,11 @@ class HIDSClient:
         self.host = host
         self.port =  port
     
-    def request_verification(self, filename, hash_file, token):
+    def request_verification(self, filepath, data_hash, token):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
 
-            data = {"filename" : filename, "hash": hash_file, "token": token}
+            data = {"filepath" : filepath, "data_hash": data_hash, "token": token}
             dumped_data = json.dumps(data)
             
             s.sendall(bytes(dumped_data, encoding="utf-8"))
@@ -41,11 +41,11 @@ class HIDSClient:
         verifications = generate_all_files_verification(path_folder)
         for i in verifications:
             print_verification(i)
-            [filename, hash_file, token] = i
-            json_response = self.request_verification(filename, hash_file, token)
+            [filepath_hash, filepath, data_hash, token] = i
+            json_response = self.request_verification(filepath_hash, data_hash, token)
             response = json.loads(json_response.decode('utf8'))
             if response["response"]["verification"] == "VERIFICATION_SUCCES":
-                print(file_verification(filename,hash_file, token, response["response"]["MAC"]))
+                print(file_verification(filepath, data_hash, token, response["response"]["MAC"]))
             else:
                 print(response["response"]["verification"])
 

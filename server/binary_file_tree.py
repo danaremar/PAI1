@@ -67,9 +67,12 @@ def search_values(node, filepath_hash):
 
 
 # TEST PART
-principal_node = build_tree('client/files')
-filepath_example_hash = '72d7984af6f5aa0ae36e7868f8c025c73cf5003df9d41788fef6a19c2e721a36'
-[filepath_hash, filepath, data_hash] = search_value(node=principal_node, filepath_hash=filepath_example_hash)
-print('Search filepath_hash by a_value: ', filepath_hash)
-print('Search filepath by a_value: ', filepath)
-print('Search data_hash by a_value: ', data_hash)
+# principal_node = build_tree('client/files')
+# filepath_example_hash = '72d7984af6f5aa0ae36e7868f8c025c73cf5003df9d41788fef6a19c2e721a36'
+# print('\nRepresents the tree: ', RenderTree(principal_node).by_attr('dict_keys'))
+# print('')
+# [filepath_hash, filepath, data_hash] = search_values(node=principal_node, filepath_hash=filepath_example_hash)
+# print('Search filepath_hash by a_value: ', filepath_hash)
+# print('Search filepath by a_value: ', filepath)
+# print('Search data_hash by a_value: ', data_hash)
+# print('')
