@@ -29,15 +29,17 @@ def generate_file_verification(filepath):
 
     f = open(filepath, "rb")
     filedata = f.read()
-    h = hashlib.sha3_256(filedata)
-    hash_value = h.hexdigest()
 
-    file_name = filepath.split("\\")[-1]
+    h1 = hashlib.sha3_256(filedata)
+    data_hash = h1.hexdigest()
+
+    h2 = hashlib.sha3_256(str(filepath).encode())
+    filepath_hash = h2.hexdigest()
 
     n_bits = 256
     token = secrets.token_hex(int(n_bits/8))
 
-    return [file_name, hash_value, token]
+    return [filepath_hash, filepath, data_hash, token]
 
 
 
@@ -57,7 +59,7 @@ def generate_all_files_verification(path_folder):
 
 
 def print_verification(verification):
-    print('File:', verification[0], ', hash:', verification[1], ' token:', verification[2])
+    print('Filepath:', verification[1],' filepath hash', verification[0], ', hash:', verification[2], ' token:', verification[3])
 
 
 
@@ -71,6 +73,6 @@ def print_files_verification(verifications):
 ############################################  TESTS  ########################################################
 #############################################################################################################
 
-#path_folder = 'client/files'
-#verifications = generate_all_files_verification(path_folder)
-#print_files_verification(verifications)
+# path_folder = 'client/files'
+# verifications = generate_all_files_verification(path_folder)
+# print_files_verification(verifications)

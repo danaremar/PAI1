@@ -1,49 +1,29 @@
 import socket
 import json
-from binary_file_tree import search_value
+from binary_file_tree import search_values, build_tree
 from hmac_generator import generate_hmac
 
 HOST = '127.0.0.1'
 PORT = 55333
-ALWAYS_CORRECT = True
+ALWAYS_CORRECT = False
 SECRET = 104723
 
-def dummy_verification(filename, hash_file, token):
-    return "OK"
-
-def dummy_callenge(token):
-    return "challenge"
-
 def create_challenge(token):
-    t1 = int(token, 0) % SECRET*7
-    t2 = int(token, 0) % SECRET
+    print('TOKEN', token)
+    t1 = int(token, 16) % SECRET*7
+    t2 = int(token, 16) % SECRET
     challenge = t1*t2
+    print('CHALLENGE', challenge)
     return challenge
 
-#TODO: Construir correctamente el path
-def get_file_path(filename):
-    return f"files/{filename}"
-
-def file_verification(filename, hash_file, token):
-    #TODO: Como se hacen búsquedas en el arbol de verdad?
-    hash_value = search_value(filename)
-    mac_file = None
-    verification = "VERIFICATION_FAILED"
-    if (hash_file == hash_value) or ALWAYS_CORRECT:
-        challenge = create_challenge(token)
-        mac_file = generate_hmac(hash_file, token, challenge)
-        verification = "VERIFICATION_SUCCES"
-    
-    return {"verification":verification, "MAC":mac_file}
-
-
-
 class HIDSServer:
-    def __init__(self, host='127.0.0.1', port=55333):
+    def __init__(self, path, host='127.0.0.1', port=55333):
         self.host = host
         self.port =  port
+        self.tree = build_tree(path)
 
     def run(self):
+
         while (True):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.host, self.port))
@@ -57,16 +37,31 @@ class HIDSServer:
                             break
                         print(data)
                         verification = json.loads(data)
-                        filename = verification["filename"]
-                        hash_file = verification["hash"]
+                        filepath_hash = verification["filepath_hash"]
+                        data_hash = verification["data_hash"]
                         token = verification["token"]
-                        print('SERVER - File:', filename, ', hash:', hash_file, ' token:', token)
+                        print('SERVER - filepath_hash:', filepath_hash, ', data_hash:', data_hash, ' token:', token)
+                        resp = self.file_verification(filepath_hash, data_hash, token)
 
-                        response = {"hash": hash_file, "response": file_verification(filename, hash_file, token)}
+                        response = {"filepath_hash": filepath_hash, "response": resp}
                         dumped_response = json.dumps(response)
                         conn.sendall(bytes(dumped_response, encoding="utf-8"))
 
                 s.close()
 
-server = HIDSServer(HOST, PORT)
-server.run()
+    def file_verification(self, filepath_hash, data_hash, token):
+    #TODO: Como se hacen búsquedas en el arbol de verdad?
+        [file_filepath_hash, filepath, file_data_hash] = search_values(self.tree, filepath_hash)
+
+        mac_file = None
+        verification = "VERIFICATION_FAILED"
+        if (data_hash == file_data_hash) or ALWAYS_CORRECT:
+            challenge = create_challenge(token)
+            mac_file = generate_hmac(file_data_hash, token, challenge)
+            verification = "VERIFICATION_SUCCES"
+        
+        return {"verification":verification, "MAC":mac_file}
+
+if __name__ == "__main__":
+    server = HIDSServer("./server/files", HOST, PORT)
+    server.run()
