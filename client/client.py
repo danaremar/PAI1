@@ -6,6 +6,8 @@ from hmac_generator import generate_hmac
 from scheduler import CustomScheduler
 from schedule import Scheduler
 import conf
+from custom_logger import warning
+
 
 HOST = conf.SERVER_IP
 PORT = conf.SERVER_PORT
@@ -14,12 +16,14 @@ ALWAYS_CORRECT = DEBUG_MODE and conf.ALWAYS_CORRECT
 SECRET = conf.SECRET
 SCAN_DIRECTORY = conf.SCAN_DIRECTORY
 
+
+
 def create_challenge(token):
     print('TOKEN', token)
     t1 = int(token, 16) % SECRET*7
     t2 = int(token, 16) % SECRET
     challenge = t1*t2
-    print('CHALLENGE', challenge)
+    warning(f'CHALLENGE: {challenge}')
     return challenge
 
 class HIDSClient:
