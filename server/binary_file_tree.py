@@ -47,7 +47,7 @@ def generate_node(info_list, parent, i):
         if len(info_list) == 1:
             generate_node(info_list=info_list, parent=info_node, i=i)
         elif len(info_list) > 1:
-            first_half = info_list[:len(info_list)//2]
+            first_half = info_list[len(info_list)//2:]
             second_half = info_list[:len(info_list)//2]
             generate_node(info_list=first_half, parent=info_node, i=i)
             generate_node(info_list=second_half, parent=info_node, i=i)

@@ -1,5 +1,6 @@
 import socket
 import json
+import hashlib
 from binary_file_tree import search_values, build_tree
 from hmac_generator import generate_hmac
 
@@ -15,6 +16,13 @@ def create_challenge(token):
     challenge = t1*t2
     print('CHALLENGE', challenge)
     return challenge
+
+def get_file_token_hash(filepath, token):
+    f = open(filepath, "rb")
+    filedata = f.read()
+    h1 = hashlib.sha3_256(filedata + bytearray.fromhex(token))
+    file_token_hash = h1.hexdigest()
+    return file_token_hash
 
 class HIDSServer:
     def __init__(self, path, host='127.0.0.1', port=55333):
@@ -52,16 +60,16 @@ class HIDSServer:
     def file_verification(self, filepath_hash, data_hash, token):
         verification = "VERIFICATION_FAILED"
         mac_file = None
+        file_token_hash = None
         
-        try:
-            [file_filepath_hash, filepath, file_data_hash] = search_values(self.tree, filepath_hash)
-            if (data_hash == file_data_hash) or ALWAYS_CORRECT:
-                challenge = create_challenge(token)
-                mac_file = generate_hmac(file_data_hash, token, challenge)
-                verification = "VERIFICATION_SUCCES"
-        except:
-            pass
-        return {"verification":verification, "MAC":mac_file}
+        
+        [file_filepath_hash, filepath, file_data_hash] = search_values(self.tree, filepath_hash)
+        file_token_hash = get_file_token_hash(filepath, token)
+        if (data_hash == file_data_hash) or ALWAYS_CORRECT:
+            challenge = create_challenge(token)
+            mac_file = generate_hmac(file_data_hash, token, challenge)
+            verification = "VERIFICATION_SUCCESS"
+        return {"verification":verification, "MAC":mac_file, "file_token_hash": file_token_hash}
 
 if __name__ == "__main__":
     server = HIDSServer("./server/files", HOST, PORT)
