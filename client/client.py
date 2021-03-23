@@ -1,5 +1,6 @@
 import socket
 import json
+import hashlib
 from file_service import generate_all_files_verification, print_verification
 from hmac_generator import generate_hmac
 
@@ -13,10 +14,18 @@ def create_challenge(token):
     print('CHALLENGE', challenge)
     return challenge
 
-def file_verification(filename, expected_hash, token, server_hmac):
+def file_verification(filepath, expected_hash, token, server_hmac, file_token_hash_received):
     challenge = create_challenge(token)
     mac_file = generate_hmac(expected_hash, token, challenge)
-    return mac_file == server_hmac
+    file_token_hash_client = get_file_token_hash(filepath,token)
+    return mac_file == server_hmac and file_token_hash_client == file_token_hash_received
+
+def get_file_token_hash(filepath, token):
+    f = open(filepath, "rb")
+    filedata = f.read()
+    h1 = hashlib.sha3_256(filedata + bytearray.fromhex(token))
+    file_token_hash = h1.hexdigest()
+    return file_token_hash
 
 class HIDSClient:
 
@@ -43,8 +52,8 @@ class HIDSClient:
             [filepath_hash, filepath, data_hash, token] = i
             json_response = self.request_verification(filepath_hash, data_hash, token)
             response = json.loads(json_response.decode('utf8'))
-            if response["response"]["verification"] == "VERIFICATION_SUCCES":
-                print(file_verification(filepath_hash, data_hash, token, response["response"]["MAC"]))
+            if response["response"]["verification"] == "VERIFICATION_SUCCESS":
+                print(file_verification(filepath, data_hash, token, response["response"]["MAC"], response["response"]["file_token_hash"]))
             else:
                 print(response["response"]["verification"])
 
