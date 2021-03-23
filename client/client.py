@@ -4,8 +4,13 @@ from file_service import generate_all_files_verification, print_verification
 from hmac_generator import generate_hmac
 from scheduler import CustomScheduler
 from schedule import Scheduler
+import conf
 
-SECRET = 104723
+HOST = conf.SERVER_IP
+PORT = conf.SERVER_PORT
+ALWAYS_CORRECT = conf.ALWAYS_CORRECT
+SECRET = conf.SECRET
+SCAN_DIRECTORY = conf.SCAN_DIRECTORY
 
 def create_challenge(token):
     print('TOKEN', token)
@@ -54,14 +59,14 @@ class HIDSClient:
 
 
 if __name__ == "__main__":
-    client = HIDSClient('127.0.0.1', 55333)
+    client = HIDSClient(HOST, PORT)
     client.request_all_verifications("./server/files")
 
     #Creación del scheduler
     schedule1 = Scheduler()
 
     #Define frecuencia y método a ejecutar
-    schedule1.every(15).seconds.do(client.request_all_verifications, "./server/files")
+    schedule1.every(15).seconds.do(client.request_all_verifications, SCAN_DIRECTORY)
     sched1 = CustomScheduler(schedule1)
     sched1.threaded_schedule()
 

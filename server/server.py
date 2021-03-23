@@ -8,6 +8,7 @@ HOST = conf.SERVER_IP
 PORT = conf.SERVER_PORT
 ALWAYS_CORRECT = conf.ALWAYS_CORRECT
 SECRET = conf.SECRET
+SCAN_DIRECTORY = conf.SCAN_DIRECTORY
 
 def create_challenge(token):
     print('TOKEN', token)
@@ -60,7 +61,8 @@ class HIDSServer:
                 challenge = create_challenge(token)
                 mac_file = generate_hmac(file_data_hash, token, challenge)
                 verification = "VERIFICATION_SUCCES"
-        except:
+        except Exception as e:
+            print(e)
             print('NO FILEPATH_HASH FOUND')
             pass
         return {"verification":verification, "MAC":mac_file}
