@@ -2,11 +2,12 @@ import socket
 import json
 from binary_file_tree import search_values, build_tree
 from hmac_generator import generate_hmac
+import conf
 
-HOST = '127.0.0.1'
-PORT = 55333
-ALWAYS_CORRECT = False
-SECRET = 104723
+HOST = conf.SERVER_IP
+PORT = conf.SERVER_PORT
+ALWAYS_CORRECT = conf.ALWAYS_CORRECT
+SECRET = conf.SECRET
 
 def create_challenge(token):
     print('TOKEN', token)
@@ -60,6 +61,7 @@ class HIDSServer:
                 mac_file = generate_hmac(file_data_hash, token, challenge)
                 verification = "VERIFICATION_SUCCES"
         except:
+            print('NO FILEPATH_HASH FOUND')
             pass
         return {"verification":verification, "MAC":mac_file}
 

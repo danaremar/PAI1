@@ -2,6 +2,8 @@ import socket
 import json
 from file_service import generate_all_files_verification, print_verification
 from hmac_generator import generate_hmac
+from scheduler import CustomScheduler
+from schedule import Scheduler
 
 SECRET = 104723
 
@@ -12,11 +14,6 @@ def create_challenge(token):
     challenge = t1*t2
     print('CHALLENGE', challenge)
     return challenge
-
-def file_verification(filename, expected_hash, token, server_hmac):
-    challenge = create_challenge(token)
-    mac_file = generate_hmac(expected_hash, token, challenge)
-    return mac_file == server_hmac
 
 class HIDSClient:
 
@@ -44,13 +41,32 @@ class HIDSClient:
             json_response = self.request_verification(filepath_hash, data_hash, token)
             response = json.loads(json_response.decode('utf8'))
             if response["response"]["verification"] == "VERIFICATION_SUCCES":
-                print(file_verification(filepath_hash, data_hash, token, response["response"]["MAC"]))
+                #TODO: Cuando sea falso, añadir al log la respuesta incorrecta
+                print(self.file_verification(filepath_hash, data_hash, token, response["response"]["MAC"]))
             else:
+                #TODO: Añadir al log la respuesta incorrecta
                 print(response["response"]["verification"])
 
+    def file_verification(self, filename, expected_hash, token, server_hmac):
+        challenge = create_challenge(token)
+        mac_file = generate_hmac(expected_hash, token, challenge)
+        return mac_file == server_hmac
 
-client = HIDSClient('127.0.0.1', 55333)
-client.request_all_verifications("./server/files")
+
+if __name__ == "__main__":
+    client = HIDSClient('127.0.0.1', 55333)
+    client.request_all_verifications("./server/files")
+
+    #Creación del scheduler
+    schedule1 = Scheduler()
+
+    #Define frecuencia y método a ejecutar
+    schedule1.every(15).seconds.do(client.request_all_verifications, "./server/files")
+    sched1 = CustomScheduler(schedule1)
+    sched1.threaded_schedule()
+
+    while True:
+        pass
 
 
 

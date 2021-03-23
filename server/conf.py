@@ -3,6 +3,10 @@ import configparser
 
 config = configparser.SafeConfigParser()
 
-config.read("./conf.cfg")
+config.read("server/conf.cfg")
 
-SCAN_DIRECTORY = [ ]
+print(config.sections())
+SERVER_IP = config.get('server', 'IP')
+SERVER_PORT = int(config.get('server', 'PORT'))
+ALWAYS_CORRECT = config.get('debug', 'DEBUG_MODE')
+SECRET = config.get('keys', 'SECRET')

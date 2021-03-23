@@ -48,7 +48,7 @@ if __name__ == "__main__":
     schedule1 = Scheduler()
 
     #Define frecuencia y método a ejecutar
-    schedule1.every(5).seconds.do(dummy_task, "Parámetro")
+    schedule1.every(1).days.do(dummy_task, "Parámetro")
     sched1 = CustomScheduler(schedule1)
     sched1.threaded_schedule()
 
