@@ -61,7 +61,7 @@ def build_tree(path_folder):
     return node
 
 # returns an array that contains all info by filepath_hash
-def search_value(node, filepath_hash):
+def search_values(node, filepath_hash):
     [filepath, data_hash] = search.find_by_attr(node,name='dict_keys',value=filepath_hash).dict_values
     return [filepath_hash, filepath, data_hash]
 

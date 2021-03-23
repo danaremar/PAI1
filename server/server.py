@@ -1,7 +1,7 @@
 import socket
 import json
-from binary_file_tree import search_value
-from hmac_generator import generate_hmac
+from server.binary_file_tree import search_values, build_tree
+from server.hmac_generator import generate_hmac
 
 HOST = '127.0.0.1'
 PORT = 55333
@@ -26,7 +26,7 @@ def get_file_path(filename):
 
 def file_verification(filename, hash_file, token):
     #TODO: Como se hacen búsquedas en el arbol de verdad?
-    hash_value = search_value(filename)
+    hash_value = search_values(filename)
     mac_file = None
     verification = "VERIFICATION_FAILED"
     if (hash_file == hash_value) or ALWAYS_CORRECT:
