@@ -81,14 +81,14 @@ class HIDSClient:
 
 if __name__ == "__main__":
     client = HIDSClient(HOST, PORT)
-    
+
     #Creación del scheduler
     schedule1 = Scheduler()
 
     #Define frecuencia y método a ejecutar
     if FAST_LOOP:
-        info("Debugger fast loop active. Executing every 15 seconds")
-        schedule1.every(15).seconds.do(client.request_all_verifications, SCAN_DIRECTORY)
+        info("Debugger fast loop active. Executing every 2 minutes")
+        schedule1.every(2).minutes.do(client.request_all_verifications, SCAN_DIRECTORY)
     else:
         info(f"Executing every {FRECUENCY} hours")
         schedule1.every(FRECUENCY).hours.do(client.request_all_verifications, SCAN_DIRECTORY)
