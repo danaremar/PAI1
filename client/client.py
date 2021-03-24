@@ -1,29 +1,28 @@
 import socket
 import json
 import hashlib
-from file_service import generate_all_files_verification, print_verification
+from file_service import generate_all_files_verification
 from hmac_generator import generate_hmac
 from scheduler import CustomScheduler
 from schedule import Scheduler
 import conf
-from custom_logger import warning
+from custom_logger import warning, info
 
 
 HOST = conf.SERVER_IP
 PORT = conf.SERVER_PORT
 DEBUG_MODE = conf.DEBUG_MODE
 ALWAYS_CORRECT = DEBUG_MODE and conf.ALWAYS_CORRECT
+FAST_LOOP = DEBUG_MODE and conf.FAST_LOOP
 SECRET = conf.SECRET
 SCAN_DIRECTORY = conf.SCAN_DIRECTORY
-
+FRECUENCY = conf.HOUR_FRECUENCY
 
 
 def create_challenge(token):
-    print('TOKEN', token)
     t1 = int(token, 16) % SECRET*7
     t2 = int(token, 16) % SECRET
     challenge = t1*t2
-    warning(f'CHALLENGE: {challenge}')
     return challenge
 
 class HIDSClient:
@@ -41,22 +40,30 @@ class HIDSClient:
             
             s.sendall(bytes(dumped_data, encoding="utf-8"))
             response = s.recv(1024)
-            print('Received', repr(response))
             return response
 
     def request_all_verifications(self, path_folder):
+        info('Starting verification')
         verifications = generate_all_files_verification(path_folder)
+        num_error = 0
+        num_files = len(verifications)
         for i in verifications:
-            print_verification(i)
             [filepath_hash, filepath, data_hash, token] = i
             json_response = self.request_verification(filepath_hash, data_hash, token)
             response = json.loads(json_response.decode('utf8'))
             if response["response"]["verification"] == "VERIFICATION_SUCCESS":
-                #TODO: Añadir al log si es false
-                print(self.file_verification(filepath, data_hash, token, response["response"]["MAC"], response["response"]["file_token_hash"]))
+                final_verification = self.file_verification(filepath, data_hash, token, response["response"]["MAC"], response["response"]["file_token_hash"])
+                if not final_verification:
+                    warning(f'VERIFICATION FAILURE: Filepath: {filepath}')
+                    num_error = num_error+1
             else:
-                #TODO: Añadir al log la respuesta incorrecta
-                print(response["response"]["verification"])
+                warning(f'VERIFICATION FAILURE: Filepath: {filepath}')
+                num_error = num_error+1
+        info('Ending verification')
+        
+        
+        info(f'Summary: {num_files} files verified. {num_error} failures. {round((num_error/num_files)*100, 2)}% of integrity errors')
+                
 
     def file_verification(self, filepath, expected_hash, token, server_hmac, file_token_hash_received):
         challenge = create_challenge(token)
@@ -74,15 +81,23 @@ class HIDSClient:
 
 if __name__ == "__main__":
     client = HIDSClient(HOST, PORT)
-    client.request_all_verifications(SCAN_DIRECTORY)
-
+    
     #Creación del scheduler
     schedule1 = Scheduler()
 
     #Define frecuencia y método a ejecutar
-    schedule1.every(15).seconds.do(client.request_all_verifications, SCAN_DIRECTORY)
+    if FAST_LOOP:
+        info("Debugger fast loop active. Executing every 15 seconds")
+        schedule1.every(15).seconds.do(client.request_all_verifications, SCAN_DIRECTORY)
+    else:
+        info(f"Executing every {FRECUENCY} hours")
+        schedule1.every(FRECUENCY).hours.do(client.request_all_verifications, SCAN_DIRECTORY)
+    
     sched1 = CustomScheduler(schedule1)
     sched1.threaded_schedule()
+
+    #Primera ejecución
+    client.request_all_verifications(SCAN_DIRECTORY)
 
     while True:
         pass

@@ -13,11 +13,9 @@ SECRET = conf.SECRET
 SCAN_DIRECTORY = conf.SCAN_DIRECTORY
 
 def create_challenge(token):
-    print('TOKEN', token)
     t1 = int(token, 16) % SECRET*7
     t2 = int(token, 16) % SECRET
     challenge = t1*t2
-    print('CHALLENGE', challenge)
     return challenge
 
 
@@ -36,17 +34,20 @@ class HIDSServer:
                 s.listen()
                 conn, addr = s.accept()
                 with conn:
-                    print('Connected by', addr)
+                    if DEBUG_MODE:
+                        print('Connected by', addr)
                     while True:
                         data = conn.recv(1024)
                         if not data:
                             break
-                        print(data)
+                        if DEBUG_MODE:
+                            print(data)
                         verification = json.loads(data)
                         filepath_hash = verification["filepath_hash"]
                         data_hash = verification["data_hash"]
                         token = verification["token"]
-                        print('SERVER - filepath_hash:', filepath_hash, ', data_hash:', data_hash, ' token:', token)
+                        if DEBUG_MODE:
+                            print('SERVER - filepath_hash:', filepath_hash, ', data_hash:', data_hash, ' token:', token)
                         resp = self.file_verification(filepath_hash, data_hash, token)
 
                         response = {"filepath_hash": filepath_hash, "response": resp}
@@ -74,9 +75,9 @@ class HIDSServer:
                 mac_file = generate_hmac(file_data_hash, token, challenge)
                 verification = "VERIFICATION_SUCCESS"
         except Exception as e:
-            if(DEBUG_MODE):
+            if DEBUG_MODE:
                 print(e)
-            print('NO FILEPATH_HASH FOUND')
+                print('NO FILEPATH_HASH FOUND')
         return {"verification":verification, "MAC":mac_file, "file_token_hash": file_token_hash}
 
 
