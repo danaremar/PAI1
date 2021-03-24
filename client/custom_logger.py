@@ -18,7 +18,7 @@ if FAST_LOOP:
     file_logger.addHandler(minute_handler)
 
     #6 minutes logger
-    montly_handler = TimedRotatingFileHandler(f'{PATH}/Montly_report.log', when="m", interval=6)
+    montly_handler = TimedRotatingFileHandler(f'{PATH}/Monthly_report.log', when="m", interval=6)
     montly_handler.setLevel(logging.INFO)
     montly_handler.prefix = "%Y%m"
     f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
