@@ -7,6 +7,7 @@ from scheduler import CustomScheduler
 from schedule import Scheduler
 import conf
 from custom_logger import warning, info
+import time
 
 
 HOST = conf.SERVER_IP
@@ -34,7 +35,6 @@ class HIDSClient:
     def request_verification(self, filepath_hash, data_hash, token):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
-
             data = {"filepath_hash" : filepath_hash, "data_hash": data_hash, "token": token}
             dumped_data = json.dumps(data)
             
@@ -44,7 +44,10 @@ class HIDSClient:
 
     def request_all_verifications(self, path_folder):
         info('Starting verification')
+        start = time.time()
         verifications = generate_all_files_verification(path_folder)
+        end = time.time()
+        print('TIME - INITILIZE - ', end - start)
         num_error = 0
         num_files = len(verifications)
         for i in verifications:
@@ -60,6 +63,8 @@ class HIDSClient:
                 warning(f'VERIFICATION FAILURE: Filepath: {filepath}')
                 num_error = num_error+1
         info('Ending verification')
+        end = time.time()
+        print('TIME - END - ', end - start)
         
         
         info(f'Summary: {num_files} files verified. {num_error} failures. {round((num_error/num_files)*100, 2)}% of integrity errors')
